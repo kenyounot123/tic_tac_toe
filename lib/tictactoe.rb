@@ -124,7 +124,6 @@ class Game
     end
   end
     
-  
 
   def game_loop
     for i in (1..9)  #9 turns max in tic tac toe
@@ -135,14 +134,20 @@ class Game
       end
       puts "#{@current_player.name} please pick your move"
       space = gets.chomp.to_i
-      until @game_board.space_available?(space) && (space.between?(1,9)) do
-        puts "Space not available, please choose again"
-        space = gets.chomp.to_i
-      end
-      @game_board.update_board(space, @current_player.symbol)
+      valid_move = validate_player_move(space)
+      @game_board.update_board(valid_move, @current_player.symbol)
       game_over?  
       break if @winner == 1 
     end
   end
+
+  def validate_player_move(space)
+    until @game_board.space_available?(space) && (space.between?(1,9)) do
+      puts "Space not available, please choose again"
+      space = gets.chomp.to_i
+    end
+    space
+  end
 end
 
+new_game = Game.new()
