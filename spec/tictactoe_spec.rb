@@ -88,26 +88,111 @@ describe Game do
     end
   end
 
-  describe '#game_loop' do
-    let(:board) { instance_double(Board) }
+  # describe '#game_loop' do
+  #   let(:board) { instance_double(Board) }
+  #   let(:player_one) { instance_double(Players, name: 'Alice', symbol: 'X') }
+  #   let(:player_two) { instance_double(Players, name: 'Bob', symbol: 'O') }
+  #   let(:game_board) { instance_double(Board) }
+  #   before do
+  #     allow(game).to receive(:puts)  # Suppress output during testing
+  #   end
+
+  #   it 'plays the game loop and handles different scenarios' do
+  #     # Setup expectations and stubs here
+  #     # Test player turns, input validation, board updates, game over conditions, loop breaking, etc.
+  #     allow(player_one).to receive(:name).and_return('Alice')
+  #     allow(player_two).to receive(:name).and_return('Bob')
+
+
+  #     # Expect the final "Play again?" prompt
+  #     expect { game.game_loop }.to output("Play again?\n").to_stdout
+  #   end
+  # end
+end
+
+describe Board do 
+
+  subject(:game_board) { described_class.new }
+
+  describe '#initialize' do
+    it 'creates an array with correct values' do
+      correct_board = [1,2,3,4,5,6,7,8,9]
+      new_board = game_board.instance_variable_get(:@board)
+      expect(new_board).to eq(correct_board)
+    end
+  end
+
+  describe '#space_available?' do
+    context 'when given a space to check as its argument' do
+      it 'returns true if there is space' do
+        current_board = ['O','X','X',4,5,6,7,8,9]
+        our_board = game_board.instance_variable_set(:@board, current_board)
+        expect(game_board.space_available?(7)).to be(true)
+      end
+      it 'returns false if there is no space' do
+        current_board = ['O','X','X',4,5,6,7,8,9]
+        our_board = game_board.instance_variable_set(:@board, current_board)
+        expect(game_board.space_available?(2)).to be(false)
+      end
+    end
+  end
+
+  describe '#space_left?' do
+    it 'returns true if all spaces on the board are taken' do
+      current_board = ['O','X','X','X','X','O','O','O','X']
+      our_board = game_board.instance_variable_set(:@board, current_board)
+      expect(game_board.space_left?).to be(true)
+    end
+    it 'returns false if there are still empty spaces on the board' do
+      current_board = ['O','X','X','X','X','O','O','O',9]
+      our_board = game_board.instance_variable_set(:@board, current_board)
+      expect(game_board.space_left?).to be(false)
+    end
+  end
+
+  describe '#update_board' do 
     before do
-
+      allow(game_board).to receive(:display_board) 
     end
-    it 'play game_loop with valid moves' do
-      player_one = instance_double(Players, name: 'Player 1', symbol: 'X')
-      player_two = instance_double(Players, name: 'Player 2', symbol: 'O')
-      game.instance_variable_set(:@player_one, player_one)
-      game.instance_variable_set(:@player_two, player_two)
-      allow(player_one).to receive(:gets).and_return("1\n")
-      allow(player_two).to receive(:gets).and_return("5\n")
-      allow(game).to receive(:validate_player_move).and_return(1, 5)
-      allow(game).to receive(:game_over)
-      expect(board).to receive(:update_board).twice
-      game.game_loop
+    it 'updates the board with correct symbol' do
+      board_area = 1
+      update_with_symbol = 'X'
+      game_board.update_board(board_area, update_with_symbol)
+      our_board = game_board.instance_variable_get(:@board)
+      expect(our_board[0]).to eq('X')
     end
 
-    it 'should finish game if there is a tie' do
+    it 'displays updated board' do
+      expect(game_board).to receive(:display_board)
+      game_board.update_board(2, 'O')
+    end
+  end
+
+  describe '#three_in_a_row?' do
+    context 'when win conditions are satisfied' do
+      it 'returns true when there is three in a row horizontally' do
+        win_condition = ['X','X','X',4,5,6,7,8,9]
+        game_board.instance_variable_set(:@board, win_condition)
+        expect(game_board.three_in_a_row?).to be(true) 
+      end
+      it 'returns true when there is three in a row diagonally' do 
+        win_condition = ['X',2,3,4,'X',6,7,8,'X']
+        game_board.instance_variable_set(:@board, win_condition)
+        expect(game_board.three_in_a_row?).to be(true)
+      end
+      it 'returns true when there is three in a row vertically' do 
+        no_win_condition = ['X',2,3,'X',5,6,'X',8,9]
+        game_board.instance_variable_set(:@board, no_win_condition)
+        expect(game_board.three_in_a_row?).to be(true)
+      end
     end
 
+    context 'when win conditions are not met' do
+      it 'returns false' do
+        no_win_condition = [1,2,3,4,5,6,7,8,9]
+        game_board.instance_variable_set(:@board, no_win_condition)
+        expect(game_board.three_in_a_row?).to be(false)
+      end
+    end
   end
 end

@@ -53,6 +53,7 @@ class Game
       game_over  
       break if @winner == 1 
     end
+    puts "Play again?"
   end
 
   def validate_player_move(space)
