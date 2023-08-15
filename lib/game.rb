@@ -8,11 +8,9 @@ class Game
     @game_board = Board.new()
     @winner = 0
     @tie = 0 
-    game_start
   end
 
-  def game_start 
-    puts "Welcome to my Tic-Tac-Toe game"
+  def game_start
     assign_player_one
     assign_player_two
     @game_board.display_board
@@ -29,12 +27,11 @@ class Game
     @player_two = Players.new(gets.chomp, 'O')
   end
 
-  def game_over? #game over when there is a tie or winner
+  def game_over #game over when there is a tie or winner
     if @game_board.three_in_a_row?
       @winner = 1
       puts "#{@current_player.name} is the winner!"
-    end
-    if @game_board.space_left? && @winner == 0 
+    elsif @game_board.space_left? && @winner == 0 
       @tie = 1 
       puts "It's a Tie!"
     end
@@ -42,6 +39,7 @@ class Game
     
 
   def game_loop
+    puts "Welcome to my Tic-Tac-Toe game"
     for i in (1..9)  #9 turns max in tic tac toe
       if i.even? 
         @current_player = @player_two
@@ -52,7 +50,7 @@ class Game
       space = gets.chomp.to_i
       valid_move = validate_player_move(space)
       @game_board.update_board(valid_move, @current_player.symbol)
-      game_over?  
+      game_over  
       break if @winner == 1 
     end
   end
